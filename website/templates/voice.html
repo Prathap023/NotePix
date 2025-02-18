@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Transcription{% endblock %}
+
+{% block content %}
+<div id="speechContainer">
+    <h1>File Upload</h1>
+
+    <!-- File Upload Form -->
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="audio/*" required>
+        <button type="submit" class="btn btn-primary">Transcribe</button>
+    </form>
+
+    <!-- Voice to Text -->
+    <div>
+        <h2>Or use Voice Input:</h2>
+        <button id="start-voice-btn" class="btn btn-primary">Start Voice Recognition</button>
+        <p id="voice-transcript"></p>
+    </div>
+
+    <!-- Display Transcript -->
+    {% if transcript %}
+    <div id="transcript">
+        <h2>Transcript</h2>
+        <p id="transcriptText">{{ transcript }}</p>
+    </div>
+    <script>
+        function revealText(element) {
+            let text = element.innerText;
+            element.innerText = "";
+            let index = 0;
+
+            function addLetter() {
+                if (index < text.length) {
+                    element.innerHTML += text[index] === ' ' ? '&nbsp;' : text[index];
+                    index++;
+                    setTimeout(addLetter, 20);
+                }
+            }
+            addLetter();
+        }
+
+        window.onload = function () {
+            let transcriptElement = document.getElementById("transcriptText");
+            if (transcriptElement) {
+                revealText(transcriptElement);
+            }
+        };
+    </script>
+    {% elif error %}
+    <div id="error">
+        <h2>Error</h2>
+        <p>{{ error }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Loading Indicator -->
+<div id="loading-indicator" style="display:none;">
+    {% include 'loading.html' %}
+</div>
+
+<script>
+    // Ensure SpeechRecognition is supported
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const startVoiceBtn = document.getElementById("start-voice-btn");
+        const voiceTranscript = document.getElementById("voice-transcript");
+
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US'; // Set the language
+        recognition.interimResults = true; // Allow intermediate results while speaking
+
+        // When the recognition starts
+        recognition.onstart = () => {
+            console.log("Speech recognition started...");
+        };
+
+        // When speech recognition results are available
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            voiceTranscript.textContent = transcript;
+        };
+
+        // In case of error during speech recognition
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            voiceTranscript.textContent = "Error occurred during speech recognition.";
+        };
+
+        // Handle the end of speech recognition
+        recognition.onend = () => {
+            console.log("Speech recognition ended.");
+        };
+
+        // Start the recognition on button click
+        startVoiceBtn.addEventListener("click", () => {
+            voiceTranscript.textContent = "Listening...";
+            recognition.start();
+        });
+    } else {
+        // Inform the user if SpeechRecognition is not supported in their browser
+        document.getElementById("start-voice-btn").disabled = true;
+        document.getElementById("voice-transcript").textContent = "Speech Recognition is not supported in this browser.";
+    }
+
+    // Show loading spinner when form is submitted
+    document.querySelector("form").addEventListener("submit", function () {
+        document.getElementById("loading-indicator").style.display = "block";  // Display the loading content
+        document.getElementById("speechContainer").classList.add("loading");
+    });
+</script>
+
+{% endblock %}

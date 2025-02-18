@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1 style="text-align: center; padding-top: 10px; color: white;">Welcome to</h1>
+    <img style="position: relative; left: 50%; transform: translateX(-50%);" src="{{ url_for('static', filename='images/NotePix.png') }}" alt="" width="20%">
+<div style="display: flex; justify-content: center; align-items: center; flex-direction: column; margin-top: 20px;">
+    
+    <p>Please donate to support the development</p>
+    <img src="{{ url_for('static', filename='images/QR.jpg') }}" alt="Donation QR" width="300px">
+</div>
+{% endblock %}
