@@ -1,0 +1,16 @@
+<!-- view_file.html -->
+{% extends "base.html" %}
+
+{% block title %}View File{% endblock %}
+
+{% block content %}
+<h1>View File</h1>
+<p>Filename: {{ filename }}</p>
+
+<!-- Display the file (example for an image) -->
+<img src="{{ url_for('static', filename='uploads/' + uid + '/' + filename) }}" alt="Uploaded File"
+    style="max-width: 100%;">
+
+<!-- Download button -->
+<a href="{{ download_url }}" class="btn btn-primary">Download File</a>
+{% endblock %}

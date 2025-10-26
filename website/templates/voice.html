@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Text & Audio Processing{% endblock %}
+
+{% block content %}
+<div id="speechContainer">
+    <hr>
+
+    <!-- File Upload Section -->
+    <h2>File Upload for Transcription</h2>
+    <form method="post" enctype="multipart/form-data" id="transcriptionForm">
+        <input type="file" name="file" accept="audio/*" required>
+        <button type="submit" class="btn btn-primary">Transcribe</button>
+    </form>
+
+    {% if transcript %}
+    <div id="transcript">
+        <h2>Transcript</h2>
+        <p id="transcriptText">{{ transcript }}</p>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div id="error">
+        <h2>Error</h2>
+        <p>{{ error }}</p>
+    </div>
+    {% endif %}
+
+    <hr>
+
+    <!-- Voice-to-Text Section -->
+    <h2>Or use Voice Input:</h2>
+    <button id="start-voice-btn" class="btn btn-primary">Start Voice Recognition</button>
+    <button id="stop-voice-btn" class="btn btn-danger" style="display:none;">Stop</button>
+    <p id="voice-transcript"></p>
+
+    <!-- Text-to-Audio Section -->
+    <div>
+        <h2>Text-to-Audio Converter</h2>
+        <textarea id="text-input" class="form-control" rows="4" placeholder="Type your text here..."></textarea>
+        <button id="play-audio-btn" class="btn btn-success mt-2">🔊 Convert to Audio</button>
+        <button id="reset-btn" class="btn btn-danger mt-2">Reset</button>
+        <p id="voice-status"></p>
+    </div>
+</div>
+
+<!-- Loading Indicator -->
+<div id="loading-indicator" style="display:none;">
+    {% include 'loading.html' %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const textInput = document.getElementById("text-input");
+        const playAudioBtn = document.getElementById("play-audio-btn");
+        const resetBtn = document.getElementById("reset-btn");
+        const voiceStatus = document.getElementById("voice-status");
+        let synth = window.speechSynthesis;
+        let utterance;
+        let isPlaying = false;
+
+        playAudioBtn.addEventListener("click", function () {
+            if (textInput.value.trim() === "") {
+                voiceStatus.textContent = "Please enter some text!";
+                return;
+            }
+
+            if (!isPlaying) {
+                utterance = new SpeechSynthesisUtterance(textInput.value);
+                utterance.lang = "en-US";
+                utterance.rate = 1;
+                utterance.onend = () => {
+                    isPlaying = false;
+                    playAudioBtn.textContent = "🔊 Convert to Audio";
+                    playAudioBtn.disabled = false;
+                    voiceStatus.textContent = "Playback Finished!";
+                };
+
+                synth.speak(utterance);
+                isPlaying = true;
+                playAudioBtn.textContent = "⏸ Pause";
+                playAudioBtn.disabled = true;
+                voiceStatus.textContent = "Playing...";
+            }
+        });
+
+        resetBtn.addEventListener("click", function () {
+            synth.cancel();
+            textInput.value = "";
+            playAudioBtn.textContent = "🔊 Convert to Audio";
+            playAudioBtn.disabled = false;
+            voiceStatus.textContent = "";
+            isPlaying = false;
+        });
+    });
+
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const startVoiceBtn = document.getElementById("start-voice-btn");
+        const stopVoiceBtn = document.getElementById("stop-voice-btn");
+        const voiceTranscript = document.getElementById("voice-transcript");
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = true;
+        let isListening = false;
+
+        recognition.onstart = () => {
+            isListening = true;
+            voiceTranscript.textContent = "Listening...";
+            startVoiceBtn.style.display = "none";
+            stopVoiceBtn.style.display = "inline-block";
+        };
+
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            voiceTranscript.textContent = transcript;
+        };
+
+        recognition.onerror = () => {
+            voiceTranscript.textContent = "Error occurred during speech recognition.";
+            startVoiceBtn.style.display = "inline-block";
+            stopVoiceBtn.style.display = "none";
+        };
+
+        recognition.onend = () => {
+            isListening = false;
+            startVoiceBtn.style.display = "inline-block";
+            stopVoiceBtn.style.display = "none";
+        };
+
+        startVoiceBtn.addEventListener("click", () => {
+            if (!isListening) {
+                recognition.start();
+            }
+        });
+
+        stopVoiceBtn.addEventListener("click", () => {
+            if (isListening) {
+                recognition.stop();
+            }
+        });
+    }
+
+    document.getElementById("transcriptionForm").addEventListener("submit", function () {
+        document.getElementById("loading-indicator").style.display = "block";
+    });
+</script>
+{% endblock %}

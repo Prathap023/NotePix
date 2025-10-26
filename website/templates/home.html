@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<!-- Background & Font Styling -->
+<style>
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Poppins', sans-serif;
+        overflow: hidden;
+        background: #1f1c2c;
+        color: white;
+    }
+
+    #particles-js {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(270deg, #1f1c2c, #928dab, #1f1c2c);
+        background-size: 600% 600%;
+        animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .intro-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        z-index: 1;
+        padding: 20px;
+        position: relative;
+    }
+
+    /* Animated Letter-by-letter Title */
+    .letter-animate span {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(-40px);
+        animation: letterIn 0.8s ease forwards;
+    }
+
+    .letter-animate span:nth-child(n) {
+        animation-delay: calc(0.05s * var(--i));
+    }
+
+    @keyframes letterIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .intro-container img.logo {
+        width: 22%;
+        min-width: 220px;
+        animation: floatLogo 3s ease-in-out infinite, fadeInLogo 2s ease;
+        margin-top: 20px;
+    }
+
+    @keyframes floatLogo {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-15px);
+        }
+    }
+
+    @keyframes fadeInLogo {
+        from {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Typewriter Tagline */
+    .tagline {
+        font-size: 1.3rem;
+        color: #ddd;
+        width: auto;
+        white-space: nowrap;
+        overflow: hidden;
+        border-right: 2px solid rgba(255, 255, 255, 0.75);
+        animation: typing 2s steps(60), blink 0.5s infinite step-end;
+        margin-top: 20px;
+    }
+
+    @keyframes typing {
+        from {
+            width: 0
+        }
+
+        to {
+            width: 24ch
+        }
+    }
+
+    @keyframes blink {
+        50% {
+            border-color: transparent;
+        }
+    }
+
+    /* Sparkle Button */
+    .explore-button {
+        margin-top: 35px;
+        padding: 12px 30px;
+        background: #ffffff1a;
+        border: 2px solid #fff;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 50px;
+        transition: 0.3s ease;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        animation: pulseBtn 2.5s infinite;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .explore-button:hover {
+        background: white;
+        color: #1f1c2c;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    }
+
+    .explore-button::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+        opacity: 0;
+        animation: sparkle 1.5s infinite ease-in-out;
+        pointer-events: none;
+    }
+
+    @keyframes sparkle {
+
+        0%,
+        100% {
+            transform: translate(0, 0);
+            opacity: 0;
+        }
+
+        50% {
+            transform: translate(100%, 100%);
+            opacity: 1;
+        }
+    }
+
+    @keyframes pulseBtn {
+        0% {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        50% {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+        }
+
+        100% {
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+    }
+</style>
+
+<!-- Particles Background -->
+<div id="particles-js"></div>
+
+<!-- Main Intro Content -->
+<div class="intro-container">
+    <h1 class="letter-animate">
+        {% for letter in "Welcome to" %}
+        <span style="--i: {{ loop.index }}">{{ letter }}</span>
+        {% endfor %}
+    </h1>
+
+    <img class="logo" src="{{ url_for('static', filename='images/NotePix.png') }}" alt="NotePix Logo">
+
+    <p class="tagline">Your private space for Notes, Photos, and Voice Transcripts</p>
+
+    <a href="{{ url_for('views.upload_photo') }}" class="explore-button">Explore NotePix</a>
+</div>
+
+<!-- Background Audio -->
+<!-- <audio autoplay loop>
+    <source src="{{ url_for('static', filename='audio/ambient.mp3') }}" type="audio/mpeg">
+    Your browser does not support the audio element.
+</audio> -->
+
+<!-- Particles JS Code -->
+<script>
+    // Particle Config
+    const config = {
+        particles: {
+            number: { value: 80 },
+            color: { value: "#ffffff" },
+            opacity: { value: 0.3 },
+            size: { value: 3 },
+            move: { enable: true, speed: 1 },
+            line_linked: {
+                enable: true,
+                distance: 100,
+                color: "#ffffff",
+                opacity: 0.2,
+                width: 1
+            }
+        },
+        interactivity: {
+            events: {
+                onhover: { enable: true, mode: "grab" }
+            }
+        },
+        retina_detect: true
+    };
+
+    // Load Particle Engine
+    window.addEventListener('DOMContentLoaded', () => {
+        const script = document.createElement('script');
+        script.src = "{{ url_for('static', filename='js/particles.min.js') }}";
+        script.onload = () => particlesJS("particles-js", config);
+        document.body.appendChild(script);
+    });
+</script>
+
+{% endblock %}

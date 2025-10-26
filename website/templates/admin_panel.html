@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Admin Panel</h1>
+<h2>Manage Users</h2>
+
+<div class="admin-panel" style="display: flex; flex-direction: column;">
+    <table>
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.email }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.role }}</td>
+                <td class="actions">
+                    {% if user.id != current_user.id %}
+                    <a href="{{ url_for('admin.delete_user', user_id=user.id) }}">Delete</a>
+                    {% if user.role != 'admin' %}
+                    <a href="{{ url_for('admin.promote_user', user_id=user.id) }}" class="promote-btn">Promote</a>
+                    {% else %}
+                    <a href="{{ url_for('admin.demote_user', user_id=user.id) }}" class="demote-btn">Demote</a>
+                    {% endif %}
+                    {% else %}
+                    <p class="error">Cannot delete yourself</p>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

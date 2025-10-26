@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>View Uploaded File</h1>
+
+{% if filename.endswith(('jpg', 'jpeg', 'png', 'gif', 'webp', 'webm','heic')) %}
+<!-- Display image -->
+<div class="image-container">
+    <img src="{{ url_for('static', filename='uploads/' ~ uid ~ '/' ~ filename) }}" alt="{{ filename }}"
+        style="width: 50%; height: auto;">
+</div>
+{% elif filename.endswith(('mp4', 'avi', 'mov')) %}
+<!-- Display video -->
+<div class="video-container">
+    <video width="70%" controls>
+        <source src="{{ url_for('static', filename='uploads/' ~ uid ~ '/' ~ filename) }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</div>
+{% else%}
+<div class="pdf-container">
+    <iframe src="{{ url_for('static', filename='uploads/' ~ uid ~ '/' ~ filename) }}" width="50%"
+        height="600"></iframe>
+</div>
+
+{% endif %}
+
+<br><br>
+<a href="{{ url_for('views.upload_photo') }}">
+    <button type="button" class="btn btn-primary">Back to upload</button>
+</a>
+
+<!-- <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; margin-top: 20px;">
+    <p>This page is under development</p>
+    <p>Please donate to support the development</p>
+    <img src="{{ url_for('static', filename='images/QR.jpg') }}" alt="Donation QR" width="300px">
+</div> -->
+
+<style>
+    .image-container,
+    .video-container,
+    .pdf-container,
+    .docx-container,
+    .raw-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+</style>
+
+{% endblock %}
